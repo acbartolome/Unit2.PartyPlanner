@@ -36,8 +36,13 @@ function renderParties() {
         <h1>${currentParty.name}</h1>
         <h3>${currentParty.date}</h3>
         <h3>${currentParty.location}</h3>
-        <p>${currentParty.description}</p>`;
+        <p>${currentParty.description}</p>
+        <button id='${i}'>Delete Event</button>`;
+    // add delete button
     partiesList.appendChild(newDiv);
+    // delete button
+    const deleteButton = document.getElementById(i);
+    deleteButton.addEventListener("click", () => deleteEvent(currentParty.id))
   }
 }
 
@@ -53,17 +58,21 @@ async function addParty(event) {
 
   const name = nameInput.value;
   const date = dateInput.value;
+  console.log(date);
   const location = locationInput.value;
   const description = descriptionInput.value;
+
   // convert the date and time to iso?
-  date = date.isoformat() + 'Z';
+  const convertDate = new Date(date);
+  const dateToISO = convertDate.toISOString();
+
   try {
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name,
-        date,
+        date: dateToISO,
         location,
         description,
       }),
@@ -76,5 +85,18 @@ async function addParty(event) {
     render();
   } catch (error) {
     console.error(error);
+  }
+}
+
+async function deleteEvent(buttonId) {
+  try {
+    const response = await fetch(`${API_URL}/${buttonId}`,{
+      method: "DELETE"
+    })
+    if(!response.ok) {
+      throw new Error("Failed to delete event")
+    }
+  } catch (error) {
+    console.log(error);
   }
 }
